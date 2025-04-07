@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Filter, X } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
@@ -18,31 +17,37 @@ import { Separator } from '@/components/ui/separator';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 
-const ProductListPage = () => {
+interface ProductListPageProps {
+  preselectedCategory?: string;
+}
+
+const ProductListPage: React.FC<ProductListPageProps> = ({ preselectedCategory }) => {
   const [sortOption, setSortOption] = useState('featured');
   const [priceFilter, setPriceFilter] = useState<string[]>([]);
   const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
   
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
-  const category = searchParams.get('categoria');
+  const category = searchParams.get('categoria') || preselectedCategory;
   const searchQuery = searchParams.get('q');
   
-  // Filter products based on category and search query
+  useEffect(() => {
+    if (preselectedCategory && !categoryFilter.includes(preselectedCategory)) {
+      setCategoryFilter([preselectedCategory]);
+    }
+  }, [preselectedCategory]);
+  
   const filteredProducts = products.filter(product => {
     let matches = true;
     
-    // Apply category filter
     if (category && product.category.toLowerCase() !== category.toLowerCase()) {
       matches = false;
     }
     
-    // Apply search filter
     if (searchQuery && !product.name.toLowerCase().includes(searchQuery.toLowerCase())) {
       matches = false;
     }
     
-    // Apply price filter
     if (priceFilter.length > 0) {
       const price = product.discountPrice || product.price;
       const inPriceRange = priceFilter.some(range => {
@@ -56,7 +61,6 @@ const ProductListPage = () => {
       if (!inPriceRange) matches = false;
     }
     
-    // Apply category filter from sidebar
     if (categoryFilter.length > 0 && !categoryFilter.includes(product.category)) {
       matches = false;
     }
@@ -64,7 +68,6 @@ const ProductListPage = () => {
     return matches;
   });
   
-  // Sort products
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     if (sortOption === 'priceLow') {
       const priceA = a.discountPrice || a.price;
@@ -79,11 +82,9 @@ const ProductListPage = () => {
     if (sortOption === 'rating') {
       return b.rating - a.rating;
     }
-    // Default: featured
     return 0;
   });
   
-  // Handle price filter changes
   const handlePriceFilterChange = (value: string) => {
     setPriceFilter(prev => {
       if (prev.includes(value)) {
@@ -94,7 +95,6 @@ const ProductListPage = () => {
     });
   };
   
-  // Handle category filter changes
   const handleCategoryFilterChange = (value: string) => {
     setCategoryFilter(prev => {
       if (prev.includes(value)) {
@@ -105,16 +105,13 @@ const ProductListPage = () => {
     });
   };
   
-  // Clear all filters
   const clearFilters = () => {
     setPriceFilter([]);
     setCategoryFilter([]);
   };
   
-  // Get unique categories from products
   const uniqueCategories = Array.from(new Set(products.map(p => p.category)));
   
-  // Page title based on filters
   const pageTitle = category 
     ? `Produtos - ${category}` 
     : searchQuery 
@@ -127,7 +124,6 @@ const ProductListPage = () => {
         <h1 className="text-2xl md:text-3xl font-bold mb-6">{pageTitle}</h1>
         
         <div className="flex flex-col md:flex-row gap-8">
-          {/* Filter sidebar for desktop */}
           <div className="md:w-64 lg:w-72 hidden md:block">
             <div className="sticky top-20">
               <div className="flex items-center justify-between mb-4">
@@ -145,7 +141,6 @@ const ProductListPage = () => {
               </div>
               
               <div className="space-y-6">
-                {/* Price filter */}
                 <div>
                   <h3 className="text-sm font-medium mb-3">Preço</h3>
                   <div className="space-y-2">
@@ -194,7 +189,6 @@ const ProductListPage = () => {
                 
                 <Separator />
                 
-                {/* Category filter */}
                 <div>
                   <h3 className="text-sm font-medium mb-3">Categoria</h3>
                   <div className="space-y-2">
@@ -216,7 +210,6 @@ const ProductListPage = () => {
             </div>
           </div>
           
-          {/* Product grid */}
           <div className="flex-1">
             <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
               <div className="flex items-center">
@@ -224,7 +217,6 @@ const ProductListPage = () => {
                   {sortedProducts.length} produtos
                 </span>
                 
-                {/* Mobile filter button */}
                 <Sheet>
                   <SheetTrigger asChild>
                     <Button 
@@ -257,7 +249,6 @@ const ProductListPage = () => {
                     </div>
                     
                     <div className="space-y-6">
-                      {/* Price filter */}
                       <div>
                         <h3 className="text-sm font-medium mb-3">Preço</h3>
                         <div className="space-y-2">
@@ -306,7 +297,6 @@ const ProductListPage = () => {
                       
                       <Separator />
                       
-                      {/* Category filter */}
                       <div>
                         <h3 className="text-sm font-medium mb-3">Categoria</h3>
                         <div className="space-y-2">
@@ -329,7 +319,6 @@ const ProductListPage = () => {
                 </Sheet>
               </div>
               
-              {/* Sort dropdown */}
               <div className="flex items-center gap-2">
                 <span className="text-sm whitespace-nowrap">Ordenar por:</span>
                 <Select
