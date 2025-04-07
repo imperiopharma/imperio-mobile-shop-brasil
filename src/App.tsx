@@ -9,6 +9,8 @@ import Index from "./pages/Index";
 import ProductListPage from "./pages/ProductListPage";
 import ProductDetail from "./pages/ProductDetail";
 import ShoppingCart from "./pages/ShoppingCart";
+import Checkout from "./pages/Checkout";
+import OrderConfirmation from "./pages/OrderConfirmation";
 import NotFound from "./pages/NotFound";
 import CategoryPage from "./pages/CategoryPage";
 
@@ -26,6 +28,8 @@ const App = () => (
             <Route path="/produtos" element={<ProductListPage />} />
             <Route path="/produto/:id" element={<ProductDetail />} />
             <Route path="/carrinho" element={<ShoppingCart />} />
+            <Route path="/checkout" element={<Checkout />} />
+            <Route path="/confirmacao" element={<OrderConfirmation />} />
             <Route path="/categoria/:id" element={<CategoryPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

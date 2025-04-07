@@ -1,11 +1,17 @@
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useCart } from '@/context/CartContext';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 
-const CartSummary = () => {
+interface CartSummaryProps {
+  showCheckoutButton?: boolean;
+}
+
+const CartSummary: React.FC<CartSummaryProps> = ({ showCheckoutButton = true }) => {
   const { cartItems, cartTotal } = useCart();
+  const navigate = useNavigate();
   
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -21,6 +27,10 @@ const CartSummary = () => {
   
   const shipping = calculateShipping();
   const finalTotal = cartTotal + shipping;
+  
+  const handleCheckout = () => {
+    navigate('/checkout');
+  };
   
   return (
     <div className="bg-gray-50 rounded-lg p-6 animate-fade-in">
@@ -56,12 +66,15 @@ const CartSummary = () => {
         <span className="font-semibold text-lg">{formatPrice(finalTotal)}</span>
       </div>
       
-      <Button 
-        className="w-full bg-imperio-blue hover:bg-imperio-blue/90"
-        disabled={cartItems.length === 0}
-      >
-        Finalizar Compra
-      </Button>
+      {showCheckoutButton && (
+        <Button 
+          className="w-full bg-imperio-blue hover:bg-imperio-blue/90"
+          disabled={cartItems.length === 0}
+          onClick={handleCheckout}
+        >
+          Finalizar Compra
+        </Button>
+      )}
       
       <div className="mt-4 text-center text-xs text-muted-foreground">
         Pague com PIX, cartão de crédito, boleto ou transferência bancária
