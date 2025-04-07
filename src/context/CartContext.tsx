@@ -1,6 +1,7 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Product } from '../types/product';
-import { toast } from '@/components/ui/sonner';
+import { toast } from 'sonner';
 
 interface CartItem {
   product: Product;
